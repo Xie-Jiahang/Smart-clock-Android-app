@@ -60,8 +60,8 @@
             android:id="@+id/epv_h"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingLeft="15dp"
-            android:paddingRight="15dp"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
             custom:epvMaxShowNum="3"
             custom:epvRecycleMode="true"
             custom:epvTextColor="#4aa4a4"
@@ -81,7 +81,7 @@
             android:textSize="20sp"
             />
 
-        <com.example.control_air.EasyPickerView
+        <com.example.newapp.EasyPickerView
             android:id="@+id/epv_m"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

@@ -1,4 +1,24 @@
 package com.example.newapp;
+
+
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+import android.widget.Toast;
+
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,29 +30,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.content.SharedPreferences;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.text.Editable;
-import android.text.TextUtils;
-import android.text.TextWatcher;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.View.OnClickListener;
-import android.widget.BaseAdapter;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import android.content.Context;
-import android.widget.Button;
-
-public class MyAdapter extends BaseAdapter{
+public class MyAdapter extends BaseAdapter {
 
     Socket socket = null;//开辟一个socket控件
     OutputStream outputstream;
@@ -74,12 +72,14 @@ public class MyAdapter extends BaseAdapter{
     }
 
     @Override
-    public View getView(final int i, View view, ViewGroup viewGroup) {
+    public View getView(final int i, View view, ViewGroup viewGroup) {//i与位置对应
         ViewHolder viewHolder = null;
+        if (!isConnected)//没有连接上
+            new ClientThread().start();//打开连接
         if (context == null)
             context = viewGroup.getContext();
         if (view == null) {
-            view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.activity_main, null);//R.layout.item
+            view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.unkown, null);//R.layout.item
             viewHolder = new ViewHolder();
 
             SharedPreferences sp3=context.getSharedPreferences("arrangement1",0);
@@ -100,8 +100,8 @@ public class MyAdapter extends BaseAdapter{
 
             viewHolder.rlTop = (LinearLayout) view.findViewById(R.id.rl_top_bar);
             viewHolder.llBottom = (LinearLayout) view.findViewById(R.id.ll_app_expand);
-            viewHolder.llBottom_extra1=(LinearLayout)view.findViewById(R.id.ll_app_expand_extra1);
-            viewHolder.llBottom_extra2=(LinearLayout)view.findViewById(R.id.ll_app_expand_extra2);
+//            viewHolder.llBottom_extra1=(LinearLayout)view.findViewById(R.id.ll_app_expand_extra1);
+//            viewHolder.llBottom_extra2=(LinearLayout)view.findViewById(R.id.ll_app_expand_extra2);
             viewHolder.llBottom_extra3=(RelativeLayout)view.findViewById(R.id.ll_app_expand_extra3);
             viewHolder.llBottom_extra4=(RelativeLayout)view.findViewById(R.id.ll_app_expand_extra4);
 
@@ -109,19 +109,19 @@ public class MyAdapter extends BaseAdapter{
             viewHolder.tv1=(TextView)view.findViewById(R.id.Textviewname);
             viewHolder.epvH = (EasyPickerView)view.findViewById(R.id.epv_h);
             viewHolder.epvM = (EasyPickerView) view.findViewById(R.id.epv_m);
-            viewHolder.et_h = (EditText)view.findViewById(R.id.et_h);
-            viewHolder.et_m = (EditText) view.findViewById(R.id.et_m);
-            viewHolder.btnTo = (Button) view.findViewById(R.id.btn_to_h);
-            viewHolder.btnBy = (Button)view.findViewById(R.id.btn_by_h);
-            viewHolder.btnTo_m = (Button)view.findViewById(R.id.btn_to_m);
-            viewHolder.btnBy_m = (Button)view.findViewById(R.id.btn_by_m);
+//            viewHolder.et_h = (EditText)view.findViewById(R.id.et_h);
+//            viewHolder.et_m = (EditText) view.findViewById(R.id.et_m);
+//            viewHolder.btnTo = (Button) view.findViewById(R.id.btn_to_h);
+//            viewHolder.btnBy = (Button)view.findViewById(R.id.btn_by_h);
+//            viewHolder.btnTo_m = (Button)view.findViewById(R.id.btn_to_m);
+//            viewHolder.btnBy_m = (Button)view.findViewById(R.id.btn_by_m);
 
             // hours
             viewHolder.initHours();
             // minutes
             viewHolder.initMinutes();
             // btns
-            viewHolder.initBtns();
+//            viewHolder.initBtns();
 
         }
         //获取viewHolder实例
@@ -192,26 +192,21 @@ public class MyAdapter extends BaseAdapter{
         };
         ed2.addTextChangedListener(watcher2);
 
-        if (lDropDown.get(i)) {
-            viewHolder.llBottom.setVisibility(View.VISIBLE);	// 显示下拉内容
-            viewHolder.llBottom_extra1.setVisibility(View.VISIBLE);	// 显示下拉内容
-            viewHolder.llBottom_extra2.setVisibility(View.VISIBLE);	// 显示下拉内容
+        if (lDropDown.get(i)&&i!=2&&i!=3&&i!=4) {
+            if(data.get(i).state==1){
+                viewHolder.llBottom.setVisibility(View.VISIBLE);	// 显示下拉内容
+//            viewHolder.llBottom_extra1.setVisibility(View.VISIBLE);	// 显示下拉内容
+//            viewHolder.llBottom_extra2.setVisibility(View.VISIBLE);	// 显示下拉内容
 
-            if(i==0)
-                viewHolder.llBottom_extra3.setVisibility(View.VISIBLE);
-            else viewHolder.llBottom_extra4.setVisibility(View.VISIBLE);
-
-//            if(i==0)
-//                viewHolder.message="A"+viewHolder.message;
-//            else viewHolder.message="B"+viewHolder.message;
-//            if(data.get(i).state==1)
-//                new Sender(viewHolder.message).start();
-//            Toast.makeText(context,""+viewHolder.message,Toast.LENGTH_SHORT).show();
+                if(i==0)
+                    viewHolder.llBottom_extra3.setVisibility(View.VISIBLE);
+                else viewHolder.llBottom_extra4.setVisibility(View.VISIBLE);
+            }
 
         } else {
             viewHolder.llBottom.setVisibility(View.GONE);		// 隐藏下拉内容
-            viewHolder.llBottom_extra1.setVisibility(View.GONE);		// 隐藏下拉内容
-            viewHolder.llBottom_extra2.setVisibility(View.GONE);		// 隐藏下拉内容
+//            viewHolder.llBottom_extra1.setVisibility(View.GONE);		// 隐藏下拉内容
+//            viewHolder.llBottom_extra2.setVisibility(View.GONE);		// 隐藏下拉内容
             viewHolder.llBottom_extra3.setVisibility(View.GONE);
             viewHolder.llBottom_extra4.setVisibility(View.GONE);
         }
@@ -231,7 +226,7 @@ public class MyAdapter extends BaseAdapter{
         return view;
     }
 
-    public class alarm_state implements OnClickListener{
+    public class alarm_state implements View.OnClickListener {
         String message="OFF";
         SharedPreferences sp = context.getSharedPreferences("alarm_state", 0);
         SharedPreferences.Editor editor= sp.edit();
@@ -251,7 +246,10 @@ public class MyAdapter extends BaseAdapter{
                         viewHolder.mBtn.setImageResource(R.drawable.btnopen);
                         if(i==0)
                             message="AON";
-                        else message="BON";
+                        else if(i==1)message="BON";
+                        else if(i==2)message="FON";//整点报时
+                        else if(i==3)message="GON";//每日播报
+                        else message="KON";//开机音乐
                         Toast.makeText(context,""+message,Toast.LENGTH_SHORT).show();
                         new Sender(message).start();
 
@@ -262,7 +260,10 @@ public class MyAdapter extends BaseAdapter{
                         viewHolder.mBtn.setImageResource(R.drawable.btnclose);
                         if(i==0)
                             message="AOFF";
-                        else message="BOFF";
+                        else if(i==1)message="BOFF";
+                        else if(i==2)message="FOFF";
+                        else if(i==3)message="GOFF";
+                        else message="KOFF";
                         Toast.makeText(context,""+message,Toast.LENGTH_SHORT).show();
                         new Sender(message).start();
 
@@ -282,19 +283,19 @@ public class MyAdapter extends BaseAdapter{
         EasyPickerView epvH;
         EasyPickerView epvM;
 
-        Button btnTo;
-        Button btnBy;
-        Button btnTo_m;
-        Button btnBy_m;
-        EditText et_h;
-        EditText et_m;
+//        Button btnTo;
+//        Button btnBy;
+//        Button btnTo_m;
+//        Button btnBy_m;
+//        EditText et_h;
+//        EditText et_m;
 
         TextView mTv;
         ImageView mBtn;
         public LinearLayout rlTop;
         public LinearLayout llBottom;
-        public LinearLayout llBottom_extra1;
-        public LinearLayout llBottom_extra2;
+        //        public LinearLayout llBottom_extra1;
+//        public LinearLayout llBottom_extra2;
         public RelativeLayout llBottom_extra3;
         public RelativeLayout llBottom_extra4;
         String message="0000";
@@ -330,6 +331,12 @@ public class MyAdapter extends BaseAdapter{
                 public void onScrollFinished(int curIndex) {
                     hour = Integer.parseInt(hDataList.get(curIndex));
                     tv.setText(hour + "h" + minute + "m");
+                    edit_time();
+                    if(tv1.getText().toString().equals("闹钟1"))
+                        message="A"+message;
+                    else message="B"+message;
+                    new Sender(message).start();
+                    Toast.makeText(context,""+message,Toast.LENGTH_SHORT).show();
                 }
             });
         }
@@ -362,49 +369,6 @@ public class MyAdapter extends BaseAdapter{
             });
         }
 
-        private void initBtns() {
-            // hours
-            btnTo.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (!TextUtils.isEmpty(et_h.getText())) {
-                        int index = Integer.parseInt(et_h.getText().toString());
-                        epvH.moveTo(index);
-                    }
-                }
-            });
-
-            btnBy.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (!TextUtils.isEmpty(et_h.getText())) {
-                        int index = Integer.parseInt(et_h.getText().toString());
-                        epvH.moveBy(index);
-                    }
-                }
-            });
-
-            // minutes
-            btnTo_m.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (!TextUtils.isEmpty(et_m.getText())) {
-                        int index = Integer.parseInt(et_m.getText().toString());
-                        epvM.moveTo(index);
-                    }
-                }
-            });
-
-            btnBy_m.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (!TextUtils.isEmpty(et_m.getText())) {
-                        int index = Integer.parseInt(et_m.getText().toString());
-                        epvM.moveBy(index);
-                    }
-                }
-            });
-        }
     }
 
     Handler mHandler = new Handler();  //等待socket连接成功

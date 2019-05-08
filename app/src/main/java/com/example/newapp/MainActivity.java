@@ -1,11 +1,16 @@
 package com.example.newapp;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -15,13 +20,23 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -40,6 +55,8 @@ public class MainActivity extends AppCompatActivity
     Button send_time = null;
     TextView sys_time = null;
 
+    private List<User> userList = new ArrayList<User>();//实体类
+
 //    连接页面
     Button enterbut = null;
     EditText IP = null;
@@ -47,12 +64,13 @@ public class MainActivity extends AppCompatActivity
     EditText upper_temp=null;
     EditText low_temp=null;
 
+//    alarm page
+    ListView lv = null;
+
 
     //  页面切换
     View content0,content1, connect, temperature;
     List<View> viewlist = new ArrayList<View>();
-
-
     private void closeview(){
         for(View v:viewlist){
             v.setVisibility(View.INVISIBLE);
@@ -63,6 +81,7 @@ public class MainActivity extends AppCompatActivity
             v.setVisibility(View.VISIBLE);
         }
     }
+
 //    连接
     private void connect(){
         IP = (EditText) findViewById(R.id.editIp);
@@ -104,6 +123,29 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         }
+    }
+
+
+//    闹钟设定
+    private void Alarm(){
+        lv = (ListView) findViewById(R.id.listview);
+
+        //模拟数据库
+        for (int i = 0; i < 2; i++) {
+            User user = new User();//给实体类赋值
+            if(i<2)
+                user.setName("闹钟" + (i + 1));
+            else if(i==2)
+                user.setName("整点报时");
+            else if(i==3)
+                user.setName("每日播报");
+            else user.setName("开机音乐");
+            user.setState(0);//闹钟开/关
+            userList.add(user);
+        }
+        MyAdapter itemAdapter = new MyAdapter(userList);
+        lv.setAdapter(itemAdapter);
+
     }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -248,8 +290,9 @@ public class MainActivity extends AppCompatActivity
             content0.setVisibility(View.VISIBLE);
         } else if (id == R.id.nav_gallery) {
             closeview();
+            Alarm();
             content1.setVisibility(View.VISIBLE);
-            Alarm a = new Alarm();
+
         } else if (id == R.id.nav_slideshow) {
             closeview();
             temperature.setVisibility(View.VISIBLE);
@@ -266,4 +309,5 @@ public class MainActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
 }
