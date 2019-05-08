@@ -17,6 +17,11 @@ android {
         }
     }
 }
+repositories {
+    maven {
+        url "http://dl.bintray.com/jlmd/maven"
+    }
+}
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
@@ -27,4 +32,6 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+    compile 'com.github.jlmd:AnimatedCircleLoadingView:1.1.5@aar'
+
 }

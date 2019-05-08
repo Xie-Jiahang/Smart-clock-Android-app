@@ -46,17 +46,21 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
-
+import com.github.jlmd.animatedcircleloadingview.AnimatedCircleLoadingView;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
 //    sys var
+    private AnimatedCircleLoadingView animatedCircleLoadingView;
+
     Socket socket = null;
     InputStream in;
     boolean isConnected = false;
 
     Button send_time = null;
     TextView sys_time = null;
+
+
 
     private List<User> userList = new ArrayList<User>();//实体类
 
@@ -244,6 +248,11 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        animatedCircleLoadingView = (AnimatedCircleLoadingView) findViewById(R.id.circle_loading_view);
+        animatedCircleLoadingView.startDeterminate();
+        startPercentMockThread();
+
         openview();closeview();
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -284,6 +293,41 @@ public class MainActivity extends AppCompatActivity
         //connect function
         connect();
 
+    }
+    private void startPercentMockThread() {
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(1500);
+                    for (int i = 0; i <= 100; i++) {
+                        Thread.sleep(65);
+                        changePercent(i);
+                    }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+        new Thread(runnable).start();
+    }
+
+    private void changePercent(final int percent) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                animatedCircleLoadingView.setPercent(percent);
+            }
+        });
+    }
+
+    public void resetLoading() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                animatedCircleLoadingView.resetLoading();
+            }
+        });
     }
 
     @Override
@@ -386,18 +430,20 @@ public class MainActivity extends AppCompatActivity
         if (id == R.id.nav_camera) {
             closeview();
             content0.setVisibility(View.VISIBLE);
-            getSupportActionBar().setTitle("233");
+            getSupportActionBar().setTitle("Time");
         } else if (id == R.id.nav_gallery) {
             closeview();
             Alarm();
             content1.setVisibility(View.VISIBLE);
-
+            getSupportActionBar().setTitle("Alarm");
         } else if (id == R.id.nav_slideshow) {
             closeview();
             temperature.setVisibility(View.VISIBLE);
+            getSupportActionBar().setTitle("Temperature");
         } else if (id == R.id.nav_manage) {
             closeview();
             connect.setVisibility(View.VISIBLE);
+            getSupportActionBar().setTitle("Connection");
         } else if (id == R.id.nav_share) {
 
         } else if (id == R.id.nav_send) {
