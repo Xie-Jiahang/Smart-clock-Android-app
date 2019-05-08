@@ -30,7 +30,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MyAdapter extends BaseAdapter {
+public class MyAdapter extends BaseAdapter{
 
     Socket socket = null;//开辟一个socket控件
     OutputStream outputstream;
@@ -369,6 +369,49 @@ public class MyAdapter extends BaseAdapter {
             });
         }
 
+//        private void initBtns() {
+//            // hours
+//            btnTo.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    if (!TextUtils.isEmpty(et_h.getText())) {
+//                        int index = Integer.parseInt(et_h.getText().toString());
+//                        epvH.moveTo(index);
+//                    }
+//                }
+//            });
+//
+//            btnBy.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    if (!TextUtils.isEmpty(et_h.getText())) {
+//                        int index = Integer.parseInt(et_h.getText().toString());
+//                        epvH.moveBy(index);
+//                    }
+//                }
+//            });
+//
+//            // minutes
+//            btnTo_m.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    if (!TextUtils.isEmpty(et_m.getText())) {
+//                        int index = Integer.parseInt(et_m.getText().toString());
+//                        epvM.moveTo(index);
+//                    }
+//                }
+//            });
+//
+//            btnBy_m.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    if (!TextUtils.isEmpty(et_m.getText())) {
+//                        int index = Integer.parseInt(et_m.getText().toString());
+//                        epvM.moveBy(index);
+//                    }
+//                }
+//            });
+//        }
     }
 
     Handler mHandler = new Handler();  //等待socket连接成功

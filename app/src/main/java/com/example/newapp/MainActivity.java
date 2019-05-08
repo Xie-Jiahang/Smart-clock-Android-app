@@ -1,6 +1,8 @@
 package com.example.newapp;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -21,6 +23,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -66,6 +69,7 @@ public class MainActivity extends AppCompatActivity
 
 //    alarm page
     ListView lv = null;
+    private LinearLayout ll=null;
 
 
     //  页面切换
@@ -128,7 +132,6 @@ public class MainActivity extends AppCompatActivity
 
 //    闹钟设定
     private void Alarm(){
-        lv = (ListView) findViewById(R.id.listview);
 
         //模拟数据库
         for (int i = 0; i < 2; i++) {
@@ -145,8 +148,98 @@ public class MainActivity extends AppCompatActivity
         }
         MyAdapter itemAdapter = new MyAdapter(userList);
         lv.setAdapter(itemAdapter);
+        lv.setOnItemLongClickListener(new alarm_week());
 
     }
+    public class alarm_week implements AdapterView.OnItemLongClickListener {
+        public String message = "0000000";
+        int[] res = {0, 0, 0, 0, 0, 0, 0};
+        boolean[] selected = new boolean[]{false, false, false, false, false, false, false};
+        String mes = "0000000";
+        String str;
+
+        SharedPreferences sp1 = getSharedPreferences("alarm_week1", 0);
+        SharedPreferences sp2 = getSharedPreferences("alarm_week2", 0);
+        SharedPreferences sp3=getSharedPreferences("arrangement1",0);
+        SharedPreferences sp4=getSharedPreferences("arrangement2",0);
+
+        SharedPreferences.Editor editor1 = sp1.edit();
+        SharedPreferences.Editor editor2 = sp2.edit();
+
+        @Override
+        public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {//长按进入
+            if(position==0||position==1) {
+                if(userList.get(position).state==1){
+                    TextView tv1 = (TextView) view.findViewById(R.id.Textviewname);//找到Textviewname
+                    str = tv1.getText().toString();//得到数据
+
+                    if (str.equals("闹钟1")) {
+                        mes = sp1.getString("res1", "");//取出前一个的值
+                        if (mes.length() == 0)
+                            mes = "D0000000";
+                        message = "D";
+                    } else {
+                        mes = sp2.getString("res2", "");//取出前一个的值
+                        if (mes.length() == 0)
+                            mes = "E0000000";
+                        message = "E";
+                    }
+
+                    String a3 = sp3.getString("a1", "");//取出前一个的值;
+                    String a4 = sp4.getString("a2", "");//取出前一个的值;
+
+                    for (int i = 0; i < selected.length; i++) {
+                        if (mes.substring(i + 1, i + 2).equals("0"))
+                            selected[i] = false;
+                        else selected[i] = true;
+                    }
+
+                    final String[] items = new String[]{"星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"};
+                    AlertDialog dialog = new AlertDialog.Builder(MainActivity.this).setTitle(position == 0 ? a3 : a4)//position==0?a3:a4
+                            .setNegativeButton("退出", null).setPositiveButton("确认", null)
+                            .setMultiChoiceItems(items, selected, new DialogInterface.OnMultiChoiceClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which, boolean isChecked) {//长按未点击多选框不进入每次点击多选框进入
+                                    if (str.equals("闹钟1")){
+                                        message="D";
+                                    }
+                                    else message="E";
+
+                                    if (isChecked) {
+                                        res[which] = 1;
+                                        selected[which] = true;
+                                    } else {
+                                        res[which] = 0;
+                                        selected[which] = false;
+                                    }
+
+                                    for (int i = 0; i < res.length; i++) {
+                                        if (selected[i] == true)
+                                            res[i] = 1;
+                                        else res[i] = 0;
+                                        message += res[i];
+                                    }
+
+                                    if (str.equals("闹钟1")) {
+                                        editor1.putString("res1", message);//将前一个的值改为后一个
+                                        editor1.commit();//editor.commit();
+                                    } else {
+                                        editor2.putString("res2", message);//将前一个的值改为后一个
+                                        editor2.commit();//editor.commit();
+                                    }
+                                    if (userList.get(position).state == 1) {
+//                                        new Sender(message).start();
+                                        Toast.makeText(MainActivity.this, "" + message, Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            }).create();
+                    dialog.show();
+                }
+            }
+            return true;
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -165,6 +258,11 @@ public class MainActivity extends AppCompatActivity
         temperature = findViewById(R.id.temperature);
         viewlist.add(connect);viewlist.add(content0);viewlist.add(content1);
         viewlist.add(temperature);
+
+        lv = (ListView) findViewById(R.id.listview);
+        ll = (LinearLayout)findViewById(R.id.ll_app_expand);
+
+
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -288,6 +386,7 @@ public class MainActivity extends AppCompatActivity
         if (id == R.id.nav_camera) {
             closeview();
             content0.setVisibility(View.VISIBLE);
+            getSupportActionBar().setTitle("233");
         } else if (id == R.id.nav_gallery) {
             closeview();
             Alarm();
