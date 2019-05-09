@@ -317,6 +317,15 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void run() {
                 animatedCircleLoadingView.setPercent(percent);
+                if(percent==100) {
+                    try {
+                        Thread.sleep(50);
+                        LinearLayout bk = findViewById(R.id.back);
+                        bk.setVisibility(View.GONE);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         });
     }
