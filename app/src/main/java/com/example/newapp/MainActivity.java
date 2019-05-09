@@ -56,6 +56,8 @@ import com.github.jlmd.animatedcircleloadingview.AnimatedCircleLoadingView;
 import com.sy.timepick.EasyPickerView;
 import com.sy.timepick.TimePickDialog;
 
+import static android.os.SystemClock.sleep;
+
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -256,9 +258,9 @@ public class MainActivity extends AppCompatActivity
 //    闹钟设定
     private void Alarm() {
 
-        if (userList == null) {
+        if (userList.size()==0) {
             //模拟数据库
-            for (int i = 0; i < 4; i++) {
+            for (int i = 0; i < 2; i++) {
                 User user = new User();//给实体类赋值
                 if (i < 2)
                     user.setName("闹钟" + (i + 1));
@@ -391,11 +393,13 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        init();
         //Loading page
         animatedCircleLoadingView = (AnimatedCircleLoadingView) findViewById(R.id.circle_loading_view);
         animatedCircleLoadingView.startDeterminate();
         startPercentMockThread();
-        init();
+
+
         //Thread pool
         mThreadPool = Executors.newCachedThreadPool();
         // 实例化主线程,用于更新接收过来的消息
@@ -477,6 +481,23 @@ public class MainActivity extends AppCompatActivity
         };
         new Thread(runnable).start();
     }
+    private void startPercentMockThread(final int speed) {
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(1500);
+                    for (int i = 0; i <= 100; i=i+2) {
+                        Thread.sleep(65);
+                        changePercent(i);
+                    }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+        new Thread(runnable).start();
+    }
     private void changePercent(final int percent) {
         runOnUiThread(new Runnable() {
             @Override
@@ -484,7 +505,7 @@ public class MainActivity extends AppCompatActivity
                 animatedCircleLoadingView.setPercent(percent);
                 if(percent==100) {
                     try {
-                        Thread.sleep(50);
+                        Thread.sleep(10);
 
                         bk.setVisibility(View.GONE);
                     } catch (InterruptedException e) {
@@ -594,6 +615,13 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+
+    private void reload(){
+        closeview();
+        bk.setVisibility(View.VISIBLE);
+        resetLoading();
+        startPercentMockThread(25);
+    }
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
@@ -601,23 +629,21 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_camera) {
-            closeview();
-            bk.setVisibility(View.VISIBLE);
-            resetLoading();
-            startPercentMockThread();
+
+            reload();
             content0.setVisibility(View.VISIBLE);
             getSupportActionBar().setTitle("Time");
         } else if (id == R.id.nav_gallery) {
-            closeview();
+            reload();
             Alarm();
             content1.setVisibility(View.VISIBLE);
             getSupportActionBar().setTitle("Alarm");
         } else if (id == R.id.nav_slideshow) {
-            closeview();
+            reload();
             temperature.setVisibility(View.VISIBLE);
             getSupportActionBar().setTitle("Temperature");
         } else if (id == R.id.nav_manage) {
-            closeview();
+            reload();
             connect.setVisibility(View.VISIBLE);
             getSupportActionBar().setTitle("Connection");
         } else if (id == R.id.nav_share) {

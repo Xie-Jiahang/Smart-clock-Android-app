@@ -2,22 +2,21 @@ package com.example.newapp;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.view.MotionEvent;
-import android.widget.ListView;
+import android.widget.LinearLayout;
 
-public class MyListView extends ListView {
-
-    public MyListView(Context context, AttributeSet attrs) {
+public class MyLinearLayout extends LinearLayout {
+    public MyLinearLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public MyListView(Context context) {
+    public MyLinearLayout(Context context) {
         super(context);
     }
 
-    public MyListView(Context context, AttributeSet attrs, int defStyle) {
+    public MyLinearLayout(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
     }
+
 
     @Override
     public void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
@@ -25,7 +24,4 @@ public class MyListView extends ListView {
                 MeasureSpec.AT_MOST);
         super.onMeasure(widthMeasureSpec, expandSpec);
     }
-
-
 }
-
