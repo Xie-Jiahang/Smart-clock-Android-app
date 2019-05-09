@@ -224,18 +224,14 @@ public class MainActivity extends AppCompatActivity
         enterbut = (Button) findViewById(R.id.conn);//获取ID号
         enterbut.setOnClickListener(new enterclick());
     }
-    public class enterclick implements View.OnClickListener//连接!!!
-    {
+    public class enterclick implements View.OnClickListener {
         @Override
         public void onClick(View arg0) {
             // TODO Auto-generated method stub
-            if(!isConnected)//没有连接上
-            {
-                // 利用线程池直接开启一个线程 & 执行该线程
+            if(!isConnected) {//没有连接上
                 new ClientThread().start();//打开连接
             }
-            else//连接上，断开连接
-            {
+            else  {//连接上，断开连接
                 if (socket != null) {
                     try {
                         socket.close();
@@ -252,6 +248,65 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+
+//    time页面
+    public class send_time implements View.OnClickListener {
+        @Override
+        public void onClick(View arg0){
+            long time=System.currentTimeMillis();
+
+            final Calendar mCalendar=Calendar.getInstance(TimeZone.getTimeZone("GMT+08:00"));
+            mCalendar.setTimeInMillis(time);
+            Calendar calendar=Calendar.getInstance();
+            int year=calendar.get(Calendar.YEAR)%100;
+            int month=calendar.get(Calendar.MONTH)+1;
+            int date=calendar.get(Calendar.DATE);
+            int hour=calendar.get(Calendar.HOUR_OF_DAY);
+            int min=calendar.get(Calendar.MINUTE);
+            int sec=calendar.get(Calendar.SECOND);
+            int day=calendar.get(Calendar.DAY_OF_WEEK)-1;
+            String message="T";
+
+            if(year<10)
+                message=(message+"0"+year);
+            else
+                message=(message+""+year);
+
+            if(month<10)
+                message=(message+"0"+month);
+            else
+                message=(message+month);
+
+            if(date<10)
+                message=(message+"0"+date);
+            else
+                message=(message+date);
+
+            if(hour<10)
+                message=(message+"0"+hour);
+            else
+                message=(message+hour);
+
+            if(min<10)
+                message=(message+"0"+min);
+            else
+                message=(message+min);
+
+            if(sec<10)
+                message=(message+"0"+sec);
+            else
+                message=(message+sec);
+
+            if(day<10)
+                message=(message+"0"+day);
+            else
+                message=(message+day);
+
+            send_time.setText("校准成功");
+            sys_time.setText(message);
+            new Sender(message).start();
+        }
+    }
 
 //    闹钟设定
     private void Alarm() {
@@ -275,16 +330,16 @@ public class MainActivity extends AppCompatActivity
         lv.setAdapter(itemAdapter);
     }
 
-
     private void init(){
         bk = findViewById(R.id.back);
         OpenView();CloseView();
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         //btn and text
-        View send_time = findViewById(R.id.send_time);
+        send_time = findViewById(R.id.send_time);
         send_time.setOnClickListener(new send_time());
         sys_time = findViewById(R.id.sys_time);
+
         //设置界面
         content0 = findViewById(R.id.content0);
         content1 = findViewById(R.id.content1);
@@ -465,64 +520,6 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    public class send_time implements View.OnClickListener//一次性发送时间
-    {
-        @Override
-        public void onClick(View arg0){
-            long time=System.currentTimeMillis();
-
-            final Calendar mCalendar=Calendar.getInstance(TimeZone.getTimeZone("GMT+08:00"));
-            mCalendar.setTimeInMillis(time);
-            Calendar calendar=Calendar.getInstance();
-            int year=calendar.get(Calendar.YEAR)%100;
-            int month=calendar.get(Calendar.MONTH)+1;
-            int date=calendar.get(Calendar.DATE);
-            int hour=calendar.get(Calendar.HOUR_OF_DAY);
-            int min=calendar.get(Calendar.MINUTE);
-            int sec=calendar.get(Calendar.SECOND);
-            int day=calendar.get(Calendar.DAY_OF_WEEK)-1;
-            String message="T";
-
-            if(year<10)
-                message=(message+"0"+year);
-            else
-                message=(message+""+year);
-
-            if(month<10)
-                message=(message+"0"+month);
-            else
-                message=(message+month);
-
-            if(date<10)
-                message=(message+"0"+date);
-            else
-                message=(message+date);
-
-            if(hour<10)
-                message=(message+"0"+hour);
-            else
-                message=(message+hour);
-
-            if(min<10)
-                message=(message+"0"+min);
-            else
-                message=(message+min);
-
-            if(sec<10)
-                message=(message+"0"+sec);
-            else
-                message=(message+sec);
-
-            if(day<10)
-                message=(message+"0"+day);
-            else
-                message=(message+day);
-
-            send_time.setText("校准成功");
-            sys_time.setText(message);
-            //new Sender(message).start();
-        }
-    }
 
 
     private void reload(){
@@ -538,7 +535,6 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_camera) {
-
             reload();
             content0.setVisibility(View.VISIBLE);
             getSupportActionBar().setTitle("Time");

@@ -251,7 +251,14 @@ public class MyAdapter extends BaseAdapter {
                         }
                         final String[] items = new String[]{"星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"};
                         AlertDialog dialog = new AlertDialog.Builder(context).setTitle(i == 0 ? a3 : a4)//position==0?a3:a4
-                                .setNegativeButton("退出", null).setPositiveButton("确认", null)
+                                .setNegativeButton("退出", null)
+                                .setPositiveButton("确认", new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        new Sender(message).start();
+                                        Toast.makeText(context, "" + message, Toast.LENGTH_SHORT).show();
+
+                                    }
+                                })
                                 .setMultiChoiceItems(items, selected, new DialogInterface.OnMultiChoiceClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which, boolean isChecked) {//长按未点击多选框不进入每次点击多选框进入
@@ -281,7 +288,6 @@ public class MyAdapter extends BaseAdapter {
                                         }
                                         if (data.get(i).state == 1) {
 //                                        new Sender(message).start();
-                                            Toast.makeText(context, "" + message, Toast.LENGTH_SHORT).show();
                                         }
                                     }
                                 }).create();
@@ -432,7 +438,6 @@ public class MyAdapter extends BaseAdapter {
         }
 
     }
-
     Handler mHandler = new Handler();  //等待socket连接成功
 
     public class ClientThread extends Thread {
@@ -455,7 +460,6 @@ public class MyAdapter extends BaseAdapter {
             }//连接服务器
         }
     }
-
     public class InputThread extends Thread {
         public void run() {
             while (true) {
@@ -484,7 +488,6 @@ public class MyAdapter extends BaseAdapter {
             }
         }
     }
-
     public String readFromInputStream(InputStream in) {
         int count = 0;
         byte[] inDatas = null;
@@ -500,7 +503,6 @@ public class MyAdapter extends BaseAdapter {
         }
         return null;
     }
-
     class Sender extends Thread {
         String serverIp;
         String message;
@@ -531,6 +533,5 @@ public class MyAdapter extends BaseAdapter {
             }
         }
     }
-
 
 }
