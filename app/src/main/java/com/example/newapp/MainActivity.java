@@ -97,20 +97,18 @@ public class MainActivity extends AppCompatActivity
 //    alarm page
     ListView lv = null;
     private LinearLayout ll=null;
-    private EasyPickerView epvH;
-    private EasyPickerView epvM;
 
 
 
     //  页面切换
     View content0,content1, connect, temperature;
     List<View> viewlist = new ArrayList<View>();
-    private void closeview(){
+    private void CloseView(){
         for(View v:viewlist){
             v.setVisibility(View.INVISIBLE);
         }
     }
-    private void openview(){
+    private void OpenView(){
         for(View v:viewlist) {
             v.setVisibility(View.VISIBLE);
         }
@@ -275,101 +273,12 @@ public class MainActivity extends AppCompatActivity
         }
         MyAdapter itemAdapter = new MyAdapter(userList);
         lv.setAdapter(itemAdapter);
-        lv.setOnItemLongClickListener(new alarm_week());
-    }
-
-    public class alarm_week implements AdapterView.OnItemLongClickListener {
-        public String message = "0000000";
-        int[] res = {0, 0, 0, 0, 0, 0, 0};
-        boolean[] selected = new boolean[]{false, false, false, false, false, false, false};
-        String mes = "0000000";
-        String str;
-
-        SharedPreferences sp1 = getSharedPreferences("alarm_week1", 0);
-        SharedPreferences sp2 = getSharedPreferences("alarm_week2", 0);
-        SharedPreferences sp3=getSharedPreferences("arrangement1",0);
-        SharedPreferences sp4=getSharedPreferences("arrangement2",0);
-
-        SharedPreferences.Editor editor1 = sp1.edit();
-        SharedPreferences.Editor editor2 = sp2.edit();
-        @Override
-        public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {//长按进入
-            if(position==0||position==1) {
-                if(userList.get(position).state==1){
-                    TextView tv1 = (TextView) view.findViewById(R.id.Textviewname);//找到Textviewname
-                    str = tv1.getText().toString();//得到数据
-
-                    if (str.equals("闹钟1")) {
-                        mes = sp1.getString("res1", "");//取出前一个的值
-                        if (mes.length() == 0)
-                            mes = "D0000000";
-                        message = "D";
-                    } else {
-                        mes = sp2.getString("res2", "");//取出前一个的值
-                        if (mes.length() == 0)
-                            mes = "E0000000";
-                        message = "E";
-                    }
-
-                    String a3 = sp3.getString("a1", "");//取出前一个的值;
-                    String a4 = sp4.getString("a2", "");//取出前一个的值;
-
-                    for (int i = 0; i < selected.length; i++) {
-                        if (mes.substring(i + 1, i + 2).equals("0"))
-                            selected[i] = false;
-                        else selected[i] = true;
-                    }
-
-                    final String[] items = new String[]{"星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"};
-                    AlertDialog dialog = new AlertDialog.Builder(MainActivity.this).setTitle(position == 0 ? a3 : a4)//position==0?a3:a4
-                            .setNegativeButton("退出", null).setPositiveButton("确认", null)
-                            .setMultiChoiceItems(items, selected, new DialogInterface.OnMultiChoiceClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which, boolean isChecked) {//长按未点击多选框不进入每次点击多选框进入
-                                    if (str.equals("闹钟1")){
-                                        message="D";
-                                    }
-                                    else message="E";
-
-                                    if (isChecked) {
-                                        res[which] = 1;
-                                        selected[which] = true;
-                                    } else {
-                                        res[which] = 0;
-                                        selected[which] = false;
-                                    }
-
-                                    for (int i = 0; i < res.length; i++) {
-                                        if (selected[i] == true)
-                                            res[i] = 1;
-                                        else res[i] = 0;
-                                        message += res[i];
-                                    }
-
-                                    if (str.equals("闹钟1")) {
-                                        editor1.putString("res1", message);//将前一个的值改为后一个
-                                        editor1.commit();//editor.commit();
-                                    } else {
-                                        editor2.putString("res2", message);//将前一个的值改为后一个
-                                        editor2.commit();//editor.commit();
-                                    }
-                                    if (userList.get(position).state == 1) {
-//                                        new Sender(message).start();
-                                        Toast.makeText(MainActivity.this, "" + message, Toast.LENGTH_SHORT).show();
-                                    }
-                                }
-                            }).create();
-                    dialog.show();
-                }
-            }
-            return true;
-        }
     }
 
 
     private void init(){
         bk = findViewById(R.id.back);
-        openview();closeview();
+        OpenView();CloseView();
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         //btn and text
@@ -617,7 +526,7 @@ public class MainActivity extends AppCompatActivity
 
 
     private void reload(){
-        closeview();
+        CloseView();
         bk.setVisibility(View.VISIBLE);
         resetLoading();
         startPercentMockThread(25);
