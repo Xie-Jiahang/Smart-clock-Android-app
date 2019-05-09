@@ -258,7 +258,7 @@ public class MainActivity extends AppCompatActivity
 
         if (userList.size()==0) {
             //模拟数据库
-            for (int i = 0; i < 2; i++) {
+            for (int i = 0; i < 4; i++) {
                 User user = new User();//给实体类赋值
                 if (i < 2)
                     user.setName("闹钟" + (i + 1));
