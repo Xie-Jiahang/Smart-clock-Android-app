@@ -23,6 +23,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
@@ -34,9 +35,11 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -46,23 +49,41 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import com.github.jlmd.animatedcircleloadingview.AnimatedCircleLoadingView;
+import com.sy.timepick.EasyPickerView;
+import com.sy.timepick.TimePickDialog;
+
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
 //    sys var
     private AnimatedCircleLoadingView animatedCircleLoadingView;
 
-    Socket socket = null;
-    InputStream in;
     boolean isConnected = false;
 
     Button send_time = null;
     TextView sys_time = null;
+    LinearLayout bk;
 
+    //Socket
+    private Handler mMainHandler;//Handler线程  获取消息
+    private Socket socket;//Socket 变量
+    private ExecutorService mThreadPool;//线程池
+    InputStream is;//输入流
+    InputStreamReader isr ;
+    BufferedReader br ;// 输入流读取器对象
+    String response;// 接收服务器发送过来的消息
+    OutputStream outputStream;// 输出流对象
 
 
     private List<User> userList = new ArrayList<User>();//实体类
+
+    private Toolbar toolbar;
+//  time page
+    TextView receive_time = null;
 
 //    连接页面
     Button enterbut = null;
@@ -74,6 +95,9 @@ public class MainActivity extends AppCompatActivity
 //    alarm page
     ListView lv = null;
     private LinearLayout ll=null;
+    private EasyPickerView epvH;
+    private EasyPickerView epvM;
+
 
 
     //  页面切换
@@ -90,6 +114,107 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+//    连接线程
+    //开辟一个线程 ,线程不允许更新UI  socket连接使用
+    public class ClientThread extends Thread {
+        public void run() {
+            try {
+                socket = new Socket(IP.getText().toString(), Integer.parseInt(PORT.getText().toString()));//建立好连接之后，就可以进行数据通讯了
+                isConnected = true;
+                is = socket.getInputStream();
+                //得到一个消息对象，Message类是有Android操作系统提供
+                Message msg = mMainHandler.obtainMessage();
+                msg.what = 1;
+                mMainHandler.sendMessage(msg);
+            } catch (UnknownHostException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }//连接服务器
+        }
+    }
+    public class InputThread extends Thread {
+        public void run()
+        {
+            while(true)
+            {
+                if(socket!=null)
+                {
+                    String result = readFromInputStream(is);
+                    try {
+                        if (!result.equals("")) {
+                            Message msg = new Message();
+                            msg.what = 2;
+                            Bundle data = new Bundle();
+                            data.putString("msg", result);
+                            msg.setData(data);
+                            mMainHandler.sendMessage(msg);
+                        }
+                    } catch (Exception e) {
+                        //Log.e(tag, "--->>read failure!" + e.toString());
+                    }
+                    try {
+                        //设置当前显示睡眠1秒
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+    }
+    public String readFromInputStream(InputStream in) {
+        int count = 0;
+        byte[] inDatas = null;
+        try {
+            while (count == 0) {
+                count = in.available();
+            }
+            inDatas = new byte[count];
+            in.read(inDatas);
+            return new String(inDatas, "gb2312");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    /* 客户端发送数据 */
+    class Sender extends Thread {
+        String serverIp;
+        String message;
+
+        Sender(String message) {
+            super();
+            //serverIp = serverAddress;
+            this.message = message;
+        }
+
+        public void run()
+        {
+            PrintWriter out;
+            try
+            {
+                // 向服务器端发送消息
+                out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())), true);
+                out.println(message);
+                // 接收来自服务器端的消息
+                //	BufferedReader br = new BufferedReader(new InputStreamReader(sock.getInputStream()));
+                //String msg = br.readLine();
+                // 关闭流
+                //out.close();
+                out.flush();
+                //	br.close();
+                // 关闭Socket
+                //	sock.close();
+            } catch (Exception e)
+            {
+                //LogUtil.e("发送错误:[Sender]run()" + e.getMessage());
+            }
+        }
+    }
 //    连接
     private void connect(){
         IP = (EditText) findViewById(R.id.editIp);
@@ -99,8 +224,6 @@ public class MainActivity extends AppCompatActivity
         enterbut = (Button) findViewById(R.id.conn);//获取ID号
         enterbut.setOnClickListener(new enterclick());
     }
-
-
     public class enterclick implements View.OnClickListener//连接!!!
     {
         @Override
@@ -108,12 +231,8 @@ public class MainActivity extends AppCompatActivity
             // TODO Auto-generated method stub
             if(!isConnected)//没有连接上
             {
-                try {
-                    socket=new Socket(IP.getText().toString(),Integer.parseInt(PORT.getText().toString()));
-                } catch (IOException e) {
-                    Toast.makeText(MainActivity.this, "服务器连接断开！", Toast.LENGTH_SHORT).show();
-                    e.printStackTrace();
-                }
+                // 利用线程池直接开启一个线程 & 执行该线程
+                new ClientThread().start();//打开连接
             }
             else//连接上，断开连接
             {
@@ -122,10 +241,10 @@ public class MainActivity extends AppCompatActivity
                         socket.close();
                         socket = null;
                         isConnected=false;
-                        //得到一个消息对象，Message类是有Android操作系统提供
-
+                        Message msg = mMainHandler.obtainMessage();
+                        msg.what=0;//信息标识号
+                        mMainHandler.sendMessage(msg);
                     } catch (IOException e) {
-                        // TODO Auto-generated catch block
                         e.printStackTrace();
                     }
                 }
@@ -135,26 +254,28 @@ public class MainActivity extends AppCompatActivity
 
 
 //    闹钟设定
-    private void Alarm(){
+    private void Alarm() {
 
-        //模拟数据库
-        for (int i = 0; i < 2; i++) {
-            User user = new User();//给实体类赋值
-            if(i<2)
-                user.setName("闹钟" + (i + 1));
-            else if(i==2)
-                user.setName("整点报时");
-            else if(i==3)
-                user.setName("每日播报");
-            else user.setName("开机音乐");
-            user.setState(0);//闹钟开/关
-            userList.add(user);
+        if (userList == null) {
+            //模拟数据库
+            for (int i = 0; i < 4; i++) {
+                User user = new User();//给实体类赋值
+                if (i < 2)
+                    user.setName("闹钟" + (i + 1));
+                else if (i == 2)
+                    user.setName("整点报时");
+                else if (i == 3)
+                    user.setName("每日播报");
+                else user.setName("开机音乐");
+                user.setState(0);//闹钟开/关
+                userList.add(user);
+            }
         }
         MyAdapter itemAdapter = new MyAdapter(userList);
         lv.setAdapter(itemAdapter);
         lv.setOnItemLongClickListener(new alarm_week());
-
     }
+
     public class alarm_week implements AdapterView.OnItemLongClickListener {
         public String message = "0000000";
         int[] res = {0, 0, 0, 0, 0, 0, 0};
@@ -169,7 +290,6 @@ public class MainActivity extends AppCompatActivity
 
         SharedPreferences.Editor editor1 = sp1.edit();
         SharedPreferences.Editor editor2 = sp2.edit();
-
         @Override
         public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {//长按进入
             if(position==0||position==1) {
@@ -244,17 +364,11 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
 
-        animatedCircleLoadingView = (AnimatedCircleLoadingView) findViewById(R.id.circle_loading_view);
-        animatedCircleLoadingView.startDeterminate();
-        startPercentMockThread();
-
+    private void init(){
+        bk = findViewById(R.id.back);
         openview();closeview();
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         //btn and text
         View send_time = findViewById(R.id.send_time);
@@ -270,6 +384,58 @@ public class MainActivity extends AppCompatActivity
 
         lv = (ListView) findViewById(R.id.listview);
         ll = (LinearLayout)findViewById(R.id.ll_app_expand);
+        receive_time = (TextView) findViewById(R.id.receive_time);
+    }
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        //Loading page
+        animatedCircleLoadingView = (AnimatedCircleLoadingView) findViewById(R.id.circle_loading_view);
+        animatedCircleLoadingView.startDeterminate();
+        startPercentMockThread();
+        init();
+        //Thread pool
+        mThreadPool = Executors.newCachedThreadPool();
+        // 实例化主线程,用于更新接收过来的消息
+        mMainHandler = new Handler() {
+            @Override
+            public void handleMessage(Message msg) {
+                super.handleMessage(msg);
+                String a, receive;
+                switch (msg.what) {
+                    case 0://TCP断开连接
+                        enterbut.setText("连接");
+                        Toast.makeText(MainActivity.this, "服务器连接断开！", Toast.LENGTH_SHORT).show();
+                        break;
+                    case 1://表明TCP连接成功，可以进行数据交互了
+                        enterbut.setText("断开");
+                        Toast.makeText(MainActivity.this, "服务器连接成功！", Toast.LENGTH_SHORT).show();
+                        new InputThread().start();//开启接收线程
+                        break;
+                    case 2://有数据进来
+                        String result = msg.getData().get("msg").toString();
+                        a = result.substring(0, 1);
+                        if (a.equals("S")) {
+                            receive = result.substring(1, 3);
+                            receive_time.setText(receive);
+                            Toast.makeText(MainActivity.this, "接收成功", Toast.LENGTH_SHORT).show();
+                        }
+                        if (a.equals("V")) {
+                            receive = result.substring(1, 3);
+                            receive_time.setText(receive);
+                            Toast.makeText(MainActivity.this, "接收成功", Toast.LENGTH_SHORT).show();
+                        }
+                        if (a.equals("D")) {
+                            receive = result.substring(1, 8);
+                            receive_time.setText(receive);
+                            Toast.makeText(MainActivity.this, "接收成功", Toast.LENGTH_SHORT).show();
+                        }
+                        break;
+                }
+            }
+        };
 
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -311,7 +477,6 @@ public class MainActivity extends AppCompatActivity
         };
         new Thread(runnable).start();
     }
-
     private void changePercent(final int percent) {
         runOnUiThread(new Runnable() {
             @Override
@@ -320,7 +485,7 @@ public class MainActivity extends AppCompatActivity
                 if(percent==100) {
                     try {
                         Thread.sleep(50);
-                        LinearLayout bk = findViewById(R.id.back);
+
                         bk.setVisibility(View.GONE);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
@@ -329,7 +494,6 @@ public class MainActivity extends AppCompatActivity
             }
         });
     }
-
     public void resetLoading() {
         runOnUiThread(new Runnable() {
             @Override
@@ -438,6 +602,9 @@ public class MainActivity extends AppCompatActivity
 
         if (id == R.id.nav_camera) {
             closeview();
+            bk.setVisibility(View.VISIBLE);
+            resetLoading();
+            startPercentMockThread();
             content0.setVisibility(View.VISIBLE);
             getSupportActionBar().setTitle("Time");
         } else if (id == R.id.nav_gallery) {

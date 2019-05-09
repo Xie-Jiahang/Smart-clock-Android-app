@@ -20,6 +20,7 @@ android {
         maven {
             url "http://dl.bintray.com/jlmd/maven"
         }
+        maven { url "https://jitpack.io" }
     }
 }
 
@@ -34,5 +35,5 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     implementation 'com.github.jlmd:AnimatedCircleLoadingView:1.1.5@aar'
-
+    implementation 'com.github.caixingcun:TimePicker:1.0'
 }

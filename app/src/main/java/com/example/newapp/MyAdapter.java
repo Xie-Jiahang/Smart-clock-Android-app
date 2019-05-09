@@ -19,6 +19,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.sy.timepick.EasyPickerView;
+
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -109,13 +111,6 @@ public class MyAdapter extends BaseAdapter{
             viewHolder.tv1=(TextView)view.findViewById(R.id.Textviewname);
             viewHolder.epvH = (EasyPickerView)view.findViewById(R.id.epv_h);
             viewHolder.epvM = (EasyPickerView) view.findViewById(R.id.epv_m);
-//            viewHolder.et_h = (EditText)view.findViewById(R.id.et_h);
-//            viewHolder.et_m = (EditText) view.findViewById(R.id.et_m);
-//            viewHolder.btnTo = (Button) view.findViewById(R.id.btn_to_h);
-//            viewHolder.btnBy = (Button)view.findViewById(R.id.btn_by_h);
-//            viewHolder.btnTo_m = (Button)view.findViewById(R.id.btn_to_m);
-//            viewHolder.btnBy_m = (Button)view.findViewById(R.id.btn_by_m);
-
             // hours
             viewHolder.initHours();
             // minutes
@@ -283,13 +278,6 @@ public class MyAdapter extends BaseAdapter{
         EasyPickerView epvH;
         EasyPickerView epvM;
 
-//        Button btnTo;
-//        Button btnBy;
-//        Button btnTo_m;
-//        Button btnBy_m;
-//        EditText et_h;
-//        EditText et_m;
-
         TextView mTv;
         ImageView mBtn;
         public LinearLayout rlTop;
@@ -369,49 +357,6 @@ public class MyAdapter extends BaseAdapter{
             });
         }
 
-//        private void initBtns() {
-//            // hours
-//            btnTo.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    if (!TextUtils.isEmpty(et_h.getText())) {
-//                        int index = Integer.parseInt(et_h.getText().toString());
-//                        epvH.moveTo(index);
-//                    }
-//                }
-//            });
-//
-//            btnBy.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    if (!TextUtils.isEmpty(et_h.getText())) {
-//                        int index = Integer.parseInt(et_h.getText().toString());
-//                        epvH.moveBy(index);
-//                    }
-//                }
-//            });
-//
-//            // minutes
-//            btnTo_m.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    if (!TextUtils.isEmpty(et_m.getText())) {
-//                        int index = Integer.parseInt(et_m.getText().toString());
-//                        epvM.moveTo(index);
-//                    }
-//                }
-//            });
-//
-//            btnBy_m.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    if (!TextUtils.isEmpty(et_m.getText())) {
-//                        int index = Integer.parseInt(et_m.getText().toString());
-//                        epvM.moveBy(index);
-//                    }
-//                }
-//            });
-//        }
     }
 
     Handler mHandler = new Handler();  //等待socket连接成功
