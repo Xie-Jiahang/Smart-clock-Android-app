@@ -34,6 +34,12 @@
     <include layout="@layout/temperature"
         android:id="@+id/temperature"
         android:visibility="invisible"/>
+    <include layout="@layout/developer"
+        android:id="@+id/developer"
+        android:visibility="invisible"/>
+    <include layout="@layout/lis"
+        android:id="@+id/lis"
+        android:visibility="invisible"/>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"

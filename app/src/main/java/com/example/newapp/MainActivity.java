@@ -346,7 +346,8 @@ public class MainActivity extends AppCompatActivity
         connect = findViewById(R.id.connect);
         temperature = findViewById(R.id.temperature);
         viewlist.add(connect);viewlist.add(content0);viewlist.add(content1);
-        viewlist.add(temperature);
+        viewlist.add(temperature);viewlist.add(findViewById(R.id.developer));
+        viewlist.add(findViewById(R.id.lis));
 
         lv = (ListView) findViewById(R.id.listview);
         ll = (LinearLayout)findViewById(R.id.ll_app_expand);
@@ -552,9 +553,13 @@ public class MainActivity extends AppCompatActivity
             connect.setVisibility(View.VISIBLE);
             getSupportActionBar().setTitle("Connection");
         } else if (id == R.id.nav_share) {
-
+            CloseView();
+            findViewById(R.id.developer).setVisibility(View.VISIBLE);
+            getSupportActionBar().setTitle("Developer");
         } else if (id == R.id.nav_send) {
-
+            CloseView();
+            findViewById(R.id.lis).setVisibility(View.VISIBLE);
+            getSupportActionBar().setTitle("Licence");
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
