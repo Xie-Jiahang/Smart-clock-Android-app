@@ -452,7 +452,9 @@ public class MainActivity extends AppCompatActivity
             public void run() {
                 try {
                     Thread.sleep(1500);
-                    for (int i = 0; i <= 100; i=i+2) {
+                    Thread.sleep(65);
+                    changePercent(85);
+                    for (int i = 94; i <= 100; i=i+2) {
                         Thread.sleep(65);
                         changePercent(i);
                     }

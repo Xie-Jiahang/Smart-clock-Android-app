@@ -359,6 +359,11 @@ public class EasyPickerView extends View {
         requestLayout();
         invalidate();
     }
+    public void move(int cur){
+        curIndex = cur;
+        requestLayout();
+        invalidate();
+    }
 
     /**
      * 获取当前状态下，选中的下标

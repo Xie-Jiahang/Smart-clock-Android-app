@@ -82,6 +82,7 @@ public class MyAdapter extends BaseAdapter {
             new ClientThread().start();//打开连接
         if (context == null)
             context = viewGroup.getContext();
+
         if (view == null) {
             view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.unkown, null);//R.layout.item
             viewHolder = new ViewHolder();
@@ -113,8 +114,8 @@ public class MyAdapter extends BaseAdapter {
             viewHolder.tv1 = (TextView) view.findViewById(R.id.Textviewname);
             viewHolder.epvH = (EasyPickerView) view.findViewById(R.id.epv_h);
             viewHolder.epvM = (EasyPickerView) view.findViewById(R.id.epv_m);
-            viewHolder.initHours();
-            viewHolder.initMinutes();
+            viewHolder.initHours(i);
+            viewHolder.initMinutes(i);
         }
         //获取viewHolder实例
         viewHolder = (ViewHolder) view.getTag();
@@ -298,6 +299,25 @@ public class MyAdapter extends BaseAdapter {
             }
         });
 
+
+        // 设置闹钟index
+        SharedPreferences sph = context.getSharedPreferences("timeh", 0);
+        int h = sph.getInt(""+i,-1);
+        Toast.makeText(context, "make item！+"+i+"+"+h, Toast.LENGTH_SHORT).show();
+        if(h==-1){
+            h=0;
+            sph.edit().putInt(""+i,0).commit();
+        }
+        viewHolder.epvH.move(h);
+
+        SharedPreferences spm = context.getSharedPreferences("timem", 0);
+        int m = spm.getInt(""+i,-1);
+        if(m==-1){
+            m=0;
+            spm.edit().putInt(""+i,0).commit();
+        }
+        viewHolder.epvM.move(m);
+
         return view;
     }
 
@@ -381,7 +401,7 @@ public class MyAdapter extends BaseAdapter {
                 message = message + "" + minute;
         }
 
-        private void initHours() {
+        private void initHours(final int ind) {
 
             final ArrayList<String> hDataList = new ArrayList<>();
             for (int i = 0; i < 24; i++)
@@ -397,6 +417,8 @@ public class MyAdapter extends BaseAdapter {
 
                 @Override
                 public void onScrollFinished(int curIndex) {
+                    SharedPreferences sp3 = context.getSharedPreferences("timeh", 0);
+                    sp3.edit().putInt(""+ind,curIndex).commit();
                     hour = Integer.parseInt(hDataList.get(curIndex));
                     tv.setText(hour + "h" + minute + "m");
                     edit_time();
@@ -409,8 +431,7 @@ public class MyAdapter extends BaseAdapter {
             });
         }
 
-        private void initMinutes() {
-
+        private void initMinutes(final int ind) {
             final ArrayList<String> dataList2 = new ArrayList<>();
             for (int i = 0; i < 60; i++)
                 dataList2.add("" + i);
@@ -425,6 +446,10 @@ public class MyAdapter extends BaseAdapter {
 
                 @Override
                 public void onScrollFinished(int curIndex) {
+                    SharedPreferences sp3 = context.getSharedPreferences("timem", 0);
+                    SharedPreferences.Editor e = sp3.edit();
+                    e.putInt(""+ind,curIndex);
+                    e.commit();
                     minute = Integer.parseInt(dataList2.get(curIndex));
                     tv.setText(hour + "h" + minute + "m");
                     edit_time();
