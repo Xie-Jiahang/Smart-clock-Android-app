@@ -53,8 +53,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import com.github.jlmd.animatedcircleloadingview.AnimatedCircleLoadingView;
-import com.sy.timepick.EasyPickerView;
-import com.sy.timepick.TimePickDialog;
+
 
 import static android.os.SystemClock.sleep;
 
