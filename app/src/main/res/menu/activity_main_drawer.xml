@@ -14,8 +14,8 @@
             android:title="Alarm" />
         <item
             android:id="@+id/nav_slideshow"
-            android:icon="@drawable/temp"
-            android:title="Temperature" />
+            android:icon="@drawable/gears"
+            android:title="Personalized Settings" />
         <item
             android:id="@+id/nav_manage"
             android:icon="@drawable/conn"
@@ -28,10 +28,6 @@
                 android:id="@+id/nav_share"
                 android:icon="@drawable/develop"
                 android:title="Developers" />
-            <item
-                android:id="@+id/nav_send"
-                android:icon="@drawable/licence"
-                android:title="License" />
         </menu>
     </item>
 

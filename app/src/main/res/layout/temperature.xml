@@ -8,16 +8,78 @@
     tools:context=".MainActivity"
     tools:showIn="@layout/app_bar_main">
 
-
-
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
+        android:gravity="center_horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent" >
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="30dp"
+                android:textSize="20dp"
+                android:text="音量设置"
+                android:textColor="@color/palevioletred"/>
+
+            <SeekBar
+                android:id="@+id/editvolume"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:max="9"
+                android:maxHeight="8dp"
+                android:progress="2" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="30dp"
+                android:layout_marginTop="10dp"
+                android:textSize="20dp"
+                android:text="背光设置"
+                android:textColor="@color/palevioletred"/>
+
+            <SeekBar
+                android:id="@+id/edit_lcd"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:max="2"
+                android:maxHeight="8dp"
+                android:progress="1" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical|center_horizontal"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal" >
+
+            <Button
+                android:id="@+id/send_light"
+                android:layout_width="98dp"
+                android:layout_height="wrap_content"
+                android:textColor="@color/palevioletred"
+                android:background="@drawable/btn_bottom_confirm_bg"
+                android:textSize="20dp"
+                android:text="背光校准" />
+
+        </LinearLayout>
+
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -29,9 +91,9 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="0dp"
                 android:text="温度上限:"
-                android:textSize="18sp" />
+                android:textColor="@color/palevioletred"
+                android:textSize="20dp" />
             <EditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -43,9 +105,9 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="0dp"
                 android:text="温度下限:"
-                android:textSize="18sp" />
+                android:textColor="@color/palevioletred"
+                android:textSize="20dp" />
             <EditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -66,7 +128,9 @@
                 android:id="@+id/edit_temp"
                 android:layout_width="98dp"
                 android:layout_height="wrap_content"
-                android:textColor="#FFFFFF"
+                android:textColor="@color/palevioletred"
+                android:background="@drawable/btn_bottom_confirm_bg"
+                android:textSize="20dp"
                 android:text="设置温度" />
 
         </LinearLayout>

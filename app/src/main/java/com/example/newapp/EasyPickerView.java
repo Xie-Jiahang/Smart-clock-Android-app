@@ -16,12 +16,7 @@ import android.widget.Scroller;
 
 import java.util.ArrayList;
 
-/**
- * 滚轮视图，可设置是否循环模式，实现OnScrollChangedListener接口以监听滚轮变化
- * Created by huzn on 2016/10/27.
- */
 public class EasyPickerView extends View {
-
     // 文字大小
     private int textSize;
     // 颜色，默认Color.BLACK

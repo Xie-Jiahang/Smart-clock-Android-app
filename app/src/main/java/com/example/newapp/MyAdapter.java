@@ -15,10 +15,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -76,7 +79,7 @@ public class MyAdapter extends BaseAdapter {
     }
 
     @Override
-    public View getView(final int i, View view, ViewGroup viewGroup) {//i与位置对应
+    public View getView(final int i, View view, final ViewGroup viewGroup) {//i与位置对应
         ViewHolder viewHolder = null;
         if (!isConnected)//没有连接上
             new ClientThread().start();//打开连接
@@ -100,20 +103,27 @@ public class MyAdapter extends BaseAdapter {
             ed2.setText(a4);
 
             viewHolder.mTv = (TextView) view.findViewById(R.id.Textviewname);
-            viewHolder.mBtn = (ImageView) view.findViewById(R.id.Textviewstate);
+            viewHolder.mBtn = (Switch) view.findViewById(R.id.Textviewstate);
             view.setTag(viewHolder);
 
             viewHolder.rlTop = (LinearLayout) view.findViewById(R.id.rl_top_bar);
             viewHolder.llBottom = (LinearLayout) view.findViewById(R.id.ll_app_expand);
-//            viewHolder.llBottom_extra1=(LinearLayout)view.findViewById(R.id.ll_app_expand_extra1);
-//            viewHolder.llBottom_extra2=(LinearLayout)view.findViewById(R.id.ll_app_expand_extra2);
+            viewHolder.llBottom1=(LinearLayout)view.findViewById(R.id.sleep_mode1);
+            viewHolder.llBottom2=(LinearLayout)view.findViewById(R.id.sleep_mode2);
             viewHolder.llBottom_extra3 = (RelativeLayout) view.findViewById(R.id.ll_app_expand_extra3);
             viewHolder.llBottom_extra4 = (RelativeLayout) view.findViewById(R.id.ll_app_expand_extra4);
 
-            viewHolder.tv = (TextView) view.findViewById(R.id.tv);
             viewHolder.tv1 = (TextView) view.findViewById(R.id.Textviewname);
             viewHolder.epvH = (EasyPickerView) view.findViewById(R.id.epv_h);
             viewHolder.epvM = (EasyPickerView) view.findViewById(R.id.epv_m);
+            viewHolder.epvH1=(EasyPickerView)view.findViewById(R.id.epv_h1);
+            viewHolder.epvM1=(EasyPickerView)view.findViewById(R.id.epv_m1);
+            viewHolder.epvH2=(EasyPickerView)view.findViewById(R.id.epv_h2);
+            viewHolder.epvM2=(EasyPickerView)view.findViewById(R.id.epv_m2);
+            viewHolder.confirm=(Button)view.findViewById(R.id.confirm);
+            viewHolder.confirm1=(Button)view.findViewById(R.id.confirm1);
+            viewHolder.confirm2=(Button)view.findViewById(R.id.confirm2);
+
             viewHolder.initHours(i);
             viewHolder.initMinutes(i);
         }
@@ -122,25 +132,21 @@ public class MyAdapter extends BaseAdapter {
         //设置数据
         viewHolder.mTv.setText(data.get(i).getName());
         viewHolder.mTv.setTag(i);
-        //设置监听事件
-        //viewHolder.mTv.setOnClickListener(this);
-
-        //设置数据
-        viewHolder.mBtn.setImageResource(R.drawable.btnclose);
 
         SharedPreferences sp = context.getSharedPreferences("alarm_state", 0);
         SharedPreferences.Editor editor = sp.edit();
         int st1 = sp.getInt("" + i, -1);
-        data.get(i).state = st1;
+        if(st1!=-1)
+            data.get(i).state = st1;
         if (st1 == -1) {
             st1 = data.get(i).state;
             editor.putInt("" + i, st1);
             editor.commit();
         }
         if (st1 == 0)
-            viewHolder.mBtn.setImageResource(R.drawable.btnclose);
+            viewHolder.mBtn.setChecked(false);
         else
-            viewHolder.mBtn.setImageResource(R.drawable.btnopen);
+            viewHolder.mBtn.setChecked(true);
 
         viewHolder.mBtn.setOnClickListener(new alarm_state());
         viewHolder.mBtn.setTag(i);
@@ -185,23 +191,30 @@ public class MyAdapter extends BaseAdapter {
         };
         ed2.addTextChangedListener(watcher2);
 
-        if (lDropDown.get(i) && i != 2 && i != 3 && i != 4) {
+        if (lDropDown.get(i) && i != 3 && i != 4 && i != 5) {
             if (data.get(i).state == 1) {
-                viewHolder.llBottom.setVisibility(View.VISIBLE);    // 显示下拉内容
-                if (i == 0)
+                if (i == 0){
+                    viewHolder.llBottom.setVisibility(View.VISIBLE);    // 显示下拉内容
                     viewHolder.llBottom_extra3.setVisibility(View.VISIBLE);
-                else viewHolder.llBottom_extra4.setVisibility(View.VISIBLE);
+                }
+                else if(i==1){
+                    viewHolder.llBottom.setVisibility(View.VISIBLE);    // 显示下拉内容
+                    viewHolder.llBottom_extra4.setVisibility(View.VISIBLE);
+                }
+                else {
+                    viewHolder.llBottom1.setVisibility(view.VISIBLE);
+                    viewHolder.llBottom2.setVisibility(view.VISIBLE);
+                }
             }
-
         } else {
             viewHolder.llBottom.setVisibility(View.GONE);        // 隐藏下拉内容
-//            viewHolder.llBottom_extra1.setVisibility(View.GONE);		// 隐藏下拉内容
-//            viewHolder.llBottom_extra2.setVisibility(View.GONE);		// 隐藏下拉内容
+            viewHolder.llBottom1.setVisibility(View.GONE);
+            viewHolder.llBottom2.setVisibility(View.GONE);
             viewHolder.llBottom_extra3.setVisibility(View.GONE);
             viewHolder.llBottom_extra4.setVisibility(View.GONE);
         }
-        // 顶部控件组响应点击操作，用于显示/隐藏底部控件组（下拉内容）
 
+        // 顶部控件组响应点击操作，用于显示/隐藏底部控件组(下拉内容)
         viewHolder.rlTop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -218,7 +231,6 @@ public class MyAdapter extends BaseAdapter {
             int[] res = {0, 0, 0, 0, 0, 0, 0};
             boolean[] selected = new boolean[]{false, false, false, false, false, false, false};
             String mes = "0000000";
-            String str;
 
             SharedPreferences sp1 = context.getSharedPreferences("alarm_week1", 0);
             SharedPreferences sp2 = context.getSharedPreferences("alarm_week2", 0);
@@ -252,14 +264,6 @@ public class MyAdapter extends BaseAdapter {
                         }
                         final String[] items = new String[]{"星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"};
                         AlertDialog dialog = new AlertDialog.Builder(context).setTitle(i == 0 ? a3 : a4)//position==0?a3:a4
-                                .setNegativeButton("退出", null)
-                                .setPositiveButton("确认", new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int id) {
-                                        new Sender(message).start();
-                                        Toast.makeText(context, "" + message, Toast.LENGTH_SHORT).show();
-
-                                    }
-                                })
                                 .setMultiChoiceItems(items, selected, new DialogInterface.OnMultiChoiceClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which, boolean isChecked) {//长按未点击多选框不进入每次点击多选框进入
@@ -287,11 +291,21 @@ public class MyAdapter extends BaseAdapter {
                                             editor2.putString("res2", message);//将前一个的值改为后一个
                                             editor2.commit();//editor.commit();
                                         }
-                                        if (data.get(i).state == 1) {
-//                                        new Sender(message).start();
-                                        }
                                     }
-                                }).create();
+                                }).setNegativeButton("退出", null)
+                                .setPositiveButton("确认", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int j) {
+                                        if(message.equals("D")||message.equals("E")){
+                                            message=mes;
+                                        }
+                                        if (data.get(i).state == 1) {
+                                            new Sender(message).start();
+                                        }
+                                        Toast.makeText(context, "" + message, Toast.LENGTH_SHORT).show();
+                                    }
+                                })
+                                .create();
                         dialog.show();
                     }
                 }
@@ -299,11 +313,9 @@ public class MyAdapter extends BaseAdapter {
             }
         });
 
-
         // 设置闹钟index
         SharedPreferences sph = context.getSharedPreferences("timeh", 0);
         int h = sph.getInt(""+i,-1);
-        Toast.makeText(context, "make item！+"+i+"+"+h, Toast.LENGTH_SHORT).show();
         if(h==-1){
             h=0;
             sph.edit().putInt(""+i,0).commit();
@@ -318,6 +330,38 @@ public class MyAdapter extends BaseAdapter {
         }
         viewHolder.epvM.move(m);
 
+        SharedPreferences sph1 = context.getSharedPreferences("timeh1", 0);
+        int h1 = sph1.getInt(""+i,-1);
+        if(h1==-1){
+            h1=0;
+            sph1.edit().putInt(""+i,0).commit();
+        }
+        viewHolder.epvH1.move(h1);
+
+        SharedPreferences spm1 = context.getSharedPreferences("timem1", 0);
+        int m1 = spm1.getInt(""+i,-1);
+        if(m1==-1){
+            m1=0;
+            spm1.edit().putInt(""+i,0).commit();
+        }
+        viewHolder.epvM1.move(m1);
+
+        SharedPreferences sph2= context.getSharedPreferences("timeh2", 0);
+        int h2= sph2.getInt(""+i,-1);
+        if(h2==-1){
+            h2=0;
+            sph2.edit().putInt(""+i,0).commit();
+        }
+        viewHolder.epvH2.move(h2);
+
+        SharedPreferences spm2= context.getSharedPreferences("timem2", 0);
+        int m2= spm2.getInt(""+i,-1);
+        if(m2==-1){
+            m2=0;
+            spm2.edit().putInt(""+i,0).commit();
+        }
+        viewHolder.epvM2.move(m2);
+
         return view;
     }
 
@@ -331,33 +375,35 @@ public class MyAdapter extends BaseAdapter {
             int id = view.getId();
             ViewHolder viewHolder = new ViewHolder();
             viewHolder.mTv = (TextView) view.findViewById(R.id.Textviewname);
-            viewHolder.mBtn = (ImageView) view.findViewById(R.id.Textviewstate);
+            viewHolder.mBtn = (Switch) view.findViewById(R.id.Textviewstate);
 
             switch (id) {
                 case R.id.Textviewstate:
                     int i = (Integer) viewHolder.mBtn.getTag();
                     if (data.get(i).state == 0) {
                         data.get(i).state = 1;
-                        viewHolder.mBtn.setImageResource(R.drawable.btnopen);
+                        viewHolder.mBtn.setChecked(true);
                         if (i == 0)
                             message = "AON";
                         else if (i == 1) message = "BON";
-                        else if (i == 2) message = "FON";//整点报时
-                        else if (i == 3) message = "GON";//每日播报
+                        else if (i==2) message="SON";//睡眠模式
+                        else if (i == 3) message = "FON";//整点报时
+                        else if (i == 4) message = "GON";//每日播报
                         else message = "KON";//开机音乐
-                        Toast.makeText(context, "" + message, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, message.equals("SON")?""+message+"睡眠模式开启":"" + message, Toast.LENGTH_SHORT).show();
                         new Sender(message).start();
 
                         editor.putInt("" + i, data.get(i).state);
                         editor.commit();
                     } else {
                         data.get(i).state = 0;
-                        viewHolder.mBtn.setImageResource(R.drawable.btnclose);
+                        viewHolder.mBtn.setChecked(false);
                         if (i == 0)
                             message = "AOFF";
                         else if (i == 1) message = "BOFF";
-                        else if (i == 2) message = "FOFF";
-                        else if (i == 3) message = "GOFF";
+                        else if(i==2) message="SOFF";
+                        else if (i == 3) message = "FOFF";
+                        else if (i == 4) message = "GOFF";
                         else message = "KOFF";
                         Toast.makeText(context, "" + message, Toast.LENGTH_SHORT).show();
                         new Sender(message).start();
@@ -372,33 +418,79 @@ public class MyAdapter extends BaseAdapter {
 
     class ViewHolder {
         int hour;
+        int hour1;
+        int hour2;
         int minute;
-        TextView tv;
+        int minute1;
+        int minute2;
+
         TextView tv1;
         EasyPickerView epvH;
         EasyPickerView epvM;
+        EasyPickerView epvH1;
+        EasyPickerView epvM1;
+        EasyPickerView epvH2;
+        EasyPickerView epvM2;
 
         TextView mTv;
-        ImageView mBtn;
+        Switch mBtn;
+        Button confirm;
+        Button confirm1;
+        Button confirm2;
         public LinearLayout rlTop;
         public LinearLayout llBottom;
-        //        public LinearLayout llBottom_extra1;
-//        public LinearLayout llBottom_extra2;
+        public LinearLayout llBottom1;
+        public LinearLayout llBottom2;
         public RelativeLayout llBottom_extra3;
         public RelativeLayout llBottom_extra4;
         String message = "0000";
+        String message1= "0000";
+        String message2= "0000";
+
+        SharedPreferences sp1 = context.getSharedPreferences("timeh", 0);
+        SharedPreferences sp2 = context.getSharedPreferences("timem", 0);
+        SharedPreferences sph1 = context.getSharedPreferences("timeh1", 0);
+        SharedPreferences spm1= context.getSharedPreferences("timem1", 0);
+        SharedPreferences sph2= context.getSharedPreferences("timeh2", 0);
+        SharedPreferences spm2= context.getSharedPreferences("timem2", 0);
 
         public void edit_time() {
-            message = "";
+            message= "";
             if (hour < 10)
-                message = "0" + hour;
+                message= "0" + hour;
             else
-                message = "" + hour;
+                message= "" + hour;
 
             if (minute < 10)
-                message = message + "0" + minute;
+                message= message+ "0" + minute;
             else
-                message = message + "" + minute;
+                message= message+ "" + minute;
+        }
+
+        public void edit_time1() {
+            message1= "";
+            if (hour1 < 10)
+                message1= "0" + hour1;
+            else
+                message1= "" + hour1;
+
+            if (minute1 < 10)
+                message1= message1+ "0" + minute1;
+            else
+                message1= message1+ "" + minute1;
+        }
+
+        public void edit_time2() {
+            message2= "";
+            if (hour2 < 10)
+                message2= "0" + hour2;
+            else
+                message2= "" + hour2;
+
+            if (minute2 < 10)
+                message2= message2+ "0" + minute2;
+            else
+                message2= message2+ "" + minute2;
         }
 
         private void initHours(final int ind) {
@@ -407,26 +499,57 @@ public class MyAdapter extends BaseAdapter {
             for (int i = 0; i < 24; i++)
                 hDataList.add("" + i);
 
+            epvH1.setDataList(hDataList);
+            epvH1.setOnScrollChangedListener(new EasyPickerView.OnScrollChangedListener() {
+                @Override
+                public void onScrollChanged(int curIndex) {
+                    hour1 = Integer.parseInt(hDataList.get(curIndex));
+                }
+
+                @Override
+                public void onScrollFinished(int curIndex) {
+
+                    sph1.edit().putInt(""+ind,curIndex).commit();
+                    hour1= Integer.parseInt(hDataList.get(curIndex));
+                    edit_time1();
+                    message1="SS"+message1;
+                }
+            });
+
+            epvH2.setDataList(hDataList);
+            epvH2.setOnScrollChangedListener(new EasyPickerView.OnScrollChangedListener() {
+                @Override
+                public void onScrollChanged(int curIndex) {
+                    hour2 = Integer.parseInt(hDataList.get(curIndex));
+                }
+
+                @Override
+                public void onScrollFinished(int curIndex) {
+
+                    sph2.edit().putInt(""+ind,curIndex).commit();
+                    hour2 = Integer.parseInt(hDataList.get(curIndex));
+                    edit_time2();
+                    message2="SE"+message2;
+                }
+            });
+
             epvH.setDataList(hDataList);
             epvH.setOnScrollChangedListener(new EasyPickerView.OnScrollChangedListener() {
                 @Override
                 public void onScrollChanged(int curIndex) {
                     hour = Integer.parseInt(hDataList.get(curIndex));
-                    tv.setText(hour + "h" + minute + "m");
                 }
 
                 @Override
                 public void onScrollFinished(int curIndex) {
-                    SharedPreferences sp3 = context.getSharedPreferences("timeh", 0);
-                    sp3.edit().putInt(""+ind,curIndex).commit();
+
+                    sp1.edit().putInt(""+ind,curIndex).commit();
                     hour = Integer.parseInt(hDataList.get(curIndex));
-                    tv.setText(hour + "h" + minute + "m");
                     edit_time();
                     if (tv1.getText().toString().equals("闹钟1"))
                         message = "A" + message;
-                    else message = "B" + message;
-                    new Sender(message).start();
-                    Toast.makeText(context, "" + message, Toast.LENGTH_SHORT).show();
+                    else
+                        message = "B" + message;
                 }
             });
         }
@@ -436,32 +559,110 @@ public class MyAdapter extends BaseAdapter {
             for (int i = 0; i < 60; i++)
                 dataList2.add("" + i);
 
+            epvM1.setDataList(dataList2);
+            epvM1.setOnScrollChangedListener(new EasyPickerView.OnScrollChangedListener() {
+                @Override
+                public void onScrollChanged(int curIndex) {
+                    minute1 = Integer.parseInt(dataList2.get(curIndex));
+                }
+
+                @Override
+                public void onScrollFinished(int curIndex) {
+
+                    SharedPreferences.Editor e = spm1.edit();
+                    e.putInt(""+ind,curIndex);
+                    e.commit();
+                    minute1 = Integer.parseInt(dataList2.get(curIndex));
+                    edit_time1();
+                    message1="SS"+message1;
+                }
+            });
+
+            epvM2.setDataList(dataList2);
+            epvM2.setOnScrollChangedListener(new EasyPickerView.OnScrollChangedListener() {
+                @Override
+                public void onScrollChanged(int curIndex) {
+                    minute2 = Integer.parseInt(dataList2.get(curIndex));
+                }
+
+                @Override
+                public void onScrollFinished(int curIndex) {
+
+                    SharedPreferences.Editor e = spm2.edit();
+                    e.putInt(""+ind,curIndex);
+                    e.commit();
+                    minute2 = Integer.parseInt(dataList2.get(curIndex));
+                    edit_time2();
+                    message2="SE"+message2;
+                }
+            });
+
             epvM.setDataList(dataList2);
             epvM.setOnScrollChangedListener(new EasyPickerView.OnScrollChangedListener() {
                 @Override
                 public void onScrollChanged(int curIndex) {
                     minute = Integer.parseInt(dataList2.get(curIndex));
-                    tv.setText(hour + "h" + minute + "m");
                 }
 
                 @Override
                 public void onScrollFinished(int curIndex) {
-                    SharedPreferences sp3 = context.getSharedPreferences("timem", 0);
-                    SharedPreferences.Editor e = sp3.edit();
+
+                    SharedPreferences.Editor e = sp2.edit();
                     e.putInt(""+ind,curIndex);
                     e.commit();
                     minute = Integer.parseInt(dataList2.get(curIndex));
-                    tv.setText(hour + "h" + minute + "m");
                     edit_time();
                     if (tv1.getText().toString().equals("闹钟1"))
                         message = "A" + message;
-                    else message = "B" + message;
+                    else
+                        message = "B" + message;
+                }
+            });
+
+            confirm.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if(message.equals("0000")){
+                        hour=sp1.getInt(""+ind,-1);
+                        minute=sp2.getInt(""+ind,-1);
+                        edit_time();
+                        if (tv1.getText().toString().equals("闹钟1"))
+                            message = "A" + message;
+                        else message = "B" + message;
+                    }
                     new Sender(message).start();
                     Toast.makeText(context, "" + message, Toast.LENGTH_SHORT).show();
                 }
             });
-        }
 
+            confirm1.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if(message1.equals("0000")){
+                        hour1=sph1.getInt(""+ind,-1);
+                        minute1=spm1.getInt(""+ind,-1);
+                        edit_time1();
+                        message1 = "SS" + message1;
+                    }
+                    new Sender(message1).start();
+                    Toast.makeText(context, "" + message1, Toast.LENGTH_SHORT).show();
+                }
+            });
+
+            confirm2.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if(message2.equals("0000")){
+                        hour2=sph2.getInt(""+ind,-1);
+                        minute2=spm2.getInt(""+ind,-1);
+                        edit_time2();
+                       message2 = "SE" + message2;
+                    }
+                    new Sender(message2).start();
+                    Toast.makeText(context, "" + message2, Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
     }
     Handler mHandler = new Handler();  //等待socket连接成功
 

@@ -1,6 +1,5 @@
 package com.example.newapp;
 
-
 public class User {
     private String name;
     public int state;
@@ -10,7 +9,6 @@ public class User {
     public void setName(String name) {
         this.name = name;
     }
-    public int getState() { return state; }
     public void setState(int st) {
         this.state= st;
     }

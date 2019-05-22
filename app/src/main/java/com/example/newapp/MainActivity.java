@@ -12,6 +12,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -27,11 +28,14 @@ import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.SeekBar;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -57,16 +61,19 @@ import com.github.jlmd.animatedcircleloadingview.AnimatedCircleLoadingView;
 
 import static android.os.SystemClock.sleep;
 
-public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
-//    sys var
     private AnimatedCircleLoadingView animatedCircleLoadingView;
 
     boolean isConnected = false;
 
     Button send_time = null;
-    TextView sys_time = null;
+    Button set_temp=null;
+    Button send_light=null;
+    FloatingActionButton alarm_music = null;
+//    TextView sys_time = null;
+    SeekBar edit_volume = null;
+    SeekBar edit_lcd = null;
     LinearLayout bk;
 
     //Socket
@@ -79,25 +86,21 @@ public class MainActivity extends AppCompatActivity
     String response;// 接收服务器发送过来的消息
     OutputStream outputStream;// 输出流对象
 
-
     private List<User> userList = new ArrayList<User>();//实体类
 
     private Toolbar toolbar;
-//  time page
     TextView receive_time = null;
 
-//    连接页面
+    //    连接页面
     Button enterbut = null;
     EditText IP = null;
     EditText PORT = null;
     EditText upper_temp=null;
     EditText low_temp=null;
 
-//    alarm page
+    //    alarm page
     ListView lv = null;
     private LinearLayout ll=null;
-
-
 
     //  页面切换
     View content0,content1, connect, temperature;
@@ -113,7 +116,7 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-//    连接线程
+    //    连接线程
     //开辟一个线程 ,线程不允许更新UI  socket连接使用
     public class ClientThread extends Thread {
         public void run() {
@@ -214,7 +217,7 @@ public class MainActivity extends AppCompatActivity
             }
         }
     }
-//    连接
+    //连接
     private void connect(){
         IP = (EditText) findViewById(R.id.editIp);
         IP.setText("192.168.4.1");
@@ -247,8 +250,7 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-
-//    time页面
+    //time页面
     public class send_time implements View.OnClickListener {
         @Override
         public void onClick(View arg0){
@@ -263,7 +265,6 @@ public class MainActivity extends AppCompatActivity
             int hour=calendar.get(Calendar.HOUR_OF_DAY);
             int min=calendar.get(Calendar.MINUTE);
             int sec=calendar.get(Calendar.SECOND);
-            int day=calendar.get(Calendar.DAY_OF_WEEK)-1;
             String message="T";
 
             if(year<10)
@@ -296,29 +297,25 @@ public class MainActivity extends AppCompatActivity
             else
                 message=(message+sec);
 
-            if(day<10)
-                message=(message+"0"+day);
-            else
-                message=(message+day);
-
-            send_time.setText("校准成功");
-            sys_time.setText(message);
+//            sys_time.setText(message);
             new Sender(message).start();
         }
     }
 
-//    闹钟设定
+    //闹钟设定
     private void Alarm() {
 
         if (userList.size()==0) {
             //模拟数据库
-            for (int i = 0; i < 4; i++) {
+            for (int i = 0; i < 6; i++) {
                 User user = new User();//给实体类赋值
-                if (i < 2)
+                if(i<2)
                     user.setName("闹钟" + (i + 1));
-                else if (i == 2)
+                else if (i==2)
+                    user.setName("睡眠模式");
+                else if(i==3)
                     user.setName("整点报时");
-                else if (i == 3)
+                else if(i==4)
                     user.setName("每日播报");
                 else user.setName("开机音乐");
                 user.setState(0);//闹钟开/关
@@ -337,7 +334,32 @@ public class MainActivity extends AppCompatActivity
         //btn and text
         send_time = findViewById(R.id.send_time);
         send_time.setOnClickListener(new send_time());
-        sys_time = findViewById(R.id.sys_time);
+        send_light=findViewById(R.id.send_light);
+        send_light.setOnClickListener(new light_setting());
+
+//        sys_time = findViewById(R.id.sys_time);
+
+        alarm_music = (FloatingActionButton) findViewById(R.id.alarm_music);
+        alarm_music.setOnClickListener(new alarm_setting());
+
+        upper_temp=(EditText)findViewById(R.id.ed1);
+        low_temp=(EditText)findViewById(R.id.ed2);
+        SharedPreferences sp1= getSharedPreferences("upper_temp", 0);
+        SharedPreferences sp2= getSharedPreferences("low_temp", 0);
+        upper_temp.setText(sp1.getString("tmp1",""));
+        low_temp.setText(sp2.getString("tmp2",""));
+        set_temp=findViewById(R.id.edit_temp);
+        set_temp.setOnClickListener(new temp_setting());
+
+        edit_volume= (SeekBar) findViewById(R.id.editvolume);
+        SharedPreferences sp= getSharedPreferences("volume", 0);
+        edit_volume.setProgress(sp.getInt("v",0));
+        edit_volume.setOnSeekBarChangeListener(new volume_setting());
+
+        edit_lcd=(SeekBar)findViewById(R.id.edit_lcd);
+        sp= getSharedPreferences("lcd", 0);
+        edit_lcd.setProgress(sp.getInt("l",0));
+        edit_lcd.setOnSeekBarChangeListener(new lcd_setting());
 
         //设置界面
         content0 = findViewById(R.id.content0);
@@ -346,11 +368,9 @@ public class MainActivity extends AppCompatActivity
         temperature = findViewById(R.id.temperature);
         viewlist.add(connect);viewlist.add(content0);viewlist.add(content1);
         viewlist.add(temperature);viewlist.add(findViewById(R.id.developer));
-        viewlist.add(findViewById(R.id.lis));
 
         lv = (ListView) findViewById(R.id.listview);
         ll = (LinearLayout)findViewById(R.id.ll_app_expand);
-        receive_time = (TextView) findViewById(R.id.receive_time);
     }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -362,7 +382,6 @@ public class MainActivity extends AppCompatActivity
         animatedCircleLoadingView = (AnimatedCircleLoadingView) findViewById(R.id.circle_loading_view);
         animatedCircleLoadingView.startDeterminate();
         startPercentMockThread();
-
 
         //Thread pool
         mThreadPool = Executors.newCachedThreadPool();
@@ -382,38 +401,9 @@ public class MainActivity extends AppCompatActivity
                         Toast.makeText(MainActivity.this, "服务器连接成功！", Toast.LENGTH_SHORT).show();
                         new InputThread().start();//开启接收线程
                         break;
-                    case 2://有数据进来
-                        String result = msg.getData().get("msg").toString();
-                        a = result.substring(0, 1);
-                        if (a.equals("S")) {
-                            receive = result.substring(1, 3);
-                            receive_time.setText(receive);
-                            Toast.makeText(MainActivity.this, "接收成功", Toast.LENGTH_SHORT).show();
-                        }
-                        if (a.equals("V")) {
-                            receive = result.substring(1, 3);
-                            receive_time.setText(receive);
-                            Toast.makeText(MainActivity.this, "接收成功", Toast.LENGTH_SHORT).show();
-                        }
-                        if (a.equals("D")) {
-                            receive = result.substring(1, 8);
-                            receive_time.setText(receive);
-                            Toast.makeText(MainActivity.this, "接收成功", Toast.LENGTH_SHORT).show();
-                        }
-                        break;
                 }
             }
         };
-
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -426,16 +416,189 @@ public class MainActivity extends AppCompatActivity
 
         //connect function
         connect();
+    }
+
+    public class temp_setting implements View.OnClickListener {
+        String message="P";
+        String str1;
+        String str2;
+        SharedPreferences sp1= getSharedPreferences("upper_temp", 0);
+        SharedPreferences sp2= getSharedPreferences("low_temp", 0);
+        SharedPreferences.Editor editor1 = sp1.edit();
+        SharedPreferences.Editor editor2 = sp2.edit();
+
+        public void edit_temp(){
+            message="P";
+            if (str1.length()==1)
+                message = message+"0" + str1;
+            else
+                message = message+"" + str1;
+
+            if (str2.length()==1)
+                message = message+"0" + str2;
+            else
+                message = message+""+ str2;
+            if(str1.equals("")||str2.equals(""))
+                message="PERROR";
+            if(str1.equals("")==false&&str2.equals("")==false){
+                if(Integer.valueOf(str1)<=Integer.valueOf(str2))
+                    message="PERROR";
+            }
+        }
+
+        @Override
+        public void onClick(View arg0) {
+            str1=upper_temp.getText().toString();
+            if(str1.equals(""))
+                message="PERROR";
+            else{
+                editor1.putString("tmp1",str1);//将前一个的值改为后一个
+                editor1.apply();//editor.commit();
+            }
+
+            str2=low_temp.getText().toString();
+            if(str2.equals(""))
+                message="PERROR";
+            else{
+                editor2.putString("tmp2",str2);//将前一个的值改为后一个
+                editor2.apply();//editor.commit();
+            }
+
+            edit_temp();
+            new Sender(message).start();
+            Toast.makeText(MainActivity.this,""+message,Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public class light_setting implements View.OnClickListener{
+        @Override
+        public void onClick(View view) {
+            Toast.makeText(MainActivity.this,"CB",Toast.LENGTH_SHORT).show();
+            new Sender("CB").start();
+        }
+    }
+
+    public class volume_setting implements SeekBar.OnSeekBarChangeListener {
+        SharedPreferences sp = getSharedPreferences("volume", 0);
+        SharedPreferences.Editor editor = sp.edit();
+
+        @Override
+        public void onStartTrackingTouch(SeekBar seekBar){
+        }
+
+        @Override
+        public void onStopTrackingTouch(SeekBar seekBar){
+        }
+
+        @Override
+        public void onProgressChanged(SeekBar seekBar,int progress, boolean fromUser){
+            // TODO Auto-generated method stub
+            String message="V";
+            editor.putInt("v",progress);
+            editor.commit();
+            message=message+progress;
+            Toast.makeText(MainActivity.this,""+message,Toast.LENGTH_SHORT).show();
+            new Sender(message).start();
+        }
+    }
+
+//    public class send_light implements View.OnClickListener{
+//        @Override
+//        public void onClick(View view) {
+//
+//        }
+//    }
+
+    public class lcd_setting implements SeekBar.OnSeekBarChangeListener {
+        SharedPreferences sp = getSharedPreferences("lcd", 0);
+        SharedPreferences.Editor editor = sp.edit();
+
+        @Override
+        public void onStartTrackingTouch(SeekBar seekBar){
+        }
+
+        @Override
+        public void onStopTrackingTouch(SeekBar seekBar){
+        }
+
+        @Override
+        public void onProgressChanged(SeekBar seekBar,int progress, boolean fromUser){
+            // TODO Auto-generated method stub
+            String message="l";
+            String toast="";
+            editor.putInt("l",progress);
+            editor.commit();
+            message=message+progress;
+            switch (progress){
+                case 0:toast="关闭";break;
+                case 1:toast="智能";break;
+                case 2:toast="开启";break;
+            }
+            Toast.makeText(MainActivity.this,""+message+toast,Toast.LENGTH_SHORT).show();
+            new Sender(message).start();
+        }
 
     }
+
+    public class alarm_setting implements View.OnClickListener {
+        public String message="M";
+        String mes;
+        int checkedItem=0;
+        SharedPreferences sp = getSharedPreferences("alarm_music", 0);
+        SharedPreferences.Editor editor = sp.edit();
+
+        @Override
+        public void onClick(View v) {
+            mes = sp.getString("alarm_music","");//取出前一个的值
+            if(mes.length()==0)
+                mes="M1";
+            checkedItem=Integer.valueOf(mes.substring(1,2))-1;//0表示选中第一个项目
+
+            AlertDialog.Builder localBuilder = new AlertDialog.Builder(MainActivity.this);
+            final String[] arrayOfString = {"Music 1", "Music 2","Music 3"};
+            localBuilder.setTitle("闹钟音乐选择");
+            localBuilder.setSingleChoiceItems(arrayOfString,checkedItem, new DialogInterface.OnClickListener()
+            {
+                public void onClick(DialogInterface paramAnonymousDialogInterface, int paramAnonymousInt)
+                {
+                    message="M";
+                    switch (paramAnonymousInt)
+                    {
+                        case 0:
+                            message="M1";
+                            break;
+                        case 1:
+                            message="M2";
+                            break;
+                        case 2:
+                            message="M3";
+                            break;
+                    }
+                    editor.putString("alarm_music",message);//将前一个的值改为后一个
+                    editor.commit();
+                    //paramAnonymousDialogInterface.dismiss();
+                }
+            }).setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    if(message.equals("M")){
+                        message=mes;
+                    }
+                    new Sender(message).start();
+                    Toast.makeText(MainActivity.this,message, Toast.LENGTH_SHORT).show();
+                }
+            }).setNegativeButton("取消",null).show();
+        }
+    }
+
     private void startPercentMockThread() {
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
                 try {
-                    Thread.sleep(1500);
+                    Thread.sleep(300);//1500
                     for (int i = 0; i <= 100; i++) {
-                        Thread.sleep(65);
+                        Thread.sleep(10);//65
                         changePercent(i);
                     }
                 } catch (InterruptedException e) {
@@ -450,11 +613,11 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void run() {
                 try {
-                    Thread.sleep(1500);
-                    Thread.sleep(65);
+                    Thread.sleep(1000);//1500
+                    Thread.sleep(50);//65
                     changePercent(85);
                     for (int i = 94; i <= 100; i=i+2) {
-                        Thread.sleep(65);
+                        Thread.sleep(50);//65
                         changePercent(i);
                     }
                 } catch (InterruptedException e) {
@@ -501,13 +664,6 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
@@ -515,20 +671,15 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
+//        if (id == R.id.action_settings) {
+//            return true;
+//        }
 
         return super.onOptionsItemSelected(item);
     }
 
-
-
     private void reload(){
         CloseView();
-        bk.setVisibility(View.VISIBLE);
-        resetLoading();
-        startPercentMockThread(25);
     }
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
@@ -548,7 +699,7 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_slideshow) {
             reload();
             temperature.setVisibility(View.VISIBLE);
-            getSupportActionBar().setTitle("Temperature");
+            getSupportActionBar().setTitle("Personalized Settings");
         } else if (id == R.id.nav_manage) {
             reload();
             connect.setVisibility(View.VISIBLE);
@@ -557,15 +708,40 @@ public class MainActivity extends AppCompatActivity
             CloseView();
             findViewById(R.id.developer).setVisibility(View.VISIBLE);
             getSupportActionBar().setTitle("Developer");
-        } else if (id == R.id.nav_send) {
-            CloseView();
-            findViewById(R.id.lis).setVisibility(View.VISIBLE);
-            getSupportActionBar().setTitle("Licence");
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event)
+    {
+        if (keyCode == KeyEvent.KEYCODE_BACK)
+        {
+            conLogout();
+        }
+        return true;
+    }
+
+    public void conLogout()
+    {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("确认退出吗？");
+        builder.setPositiveButton("是", new DialogInterface.OnClickListener()
+        {
+            @Override
+            public void onClick(DialogInterface dialog, int which)
+            {
+                LoginActivity();
+            }
+        }).setNegativeButton("否", null).create().show();;
+    }
+
+    private void LoginActivity()
+    {
+        finish();
     }
 
 }

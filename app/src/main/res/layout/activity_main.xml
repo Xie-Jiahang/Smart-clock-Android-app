@@ -6,11 +6,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    android:background="@drawable/timg"
+    android:background="@drawable/bg"
     tools:openDrawer="start"
-    app:animCircleLoadingView_mainColor="@color/main_color"
+    app:animCircleLoadingView_mainColor="@color/skyblue"
     app:animCircleLoadingView_secondaryColor="@color/secondary_color"
-    app:animCircleLoadingView_textColor="@color/background">
+    app:animCircleLoadingView_textColor="@color/plum">
 
 <RelativeLayout
     android:layout_width="fill_parent"
@@ -25,10 +25,11 @@
 <LinearLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background"
+    android:background="@color/indianred"
     android:gravity="center"
     android:id="@+id/back">
-    <com.github.jlmd.animatedcircleloadingview.AnimatedCircleLoadingView xmlns:app="http://schemas.android.com/apk/res-auto"
+    <com.github.jlmd.animatedcircleloadingview.AnimatedCircleLoadingView
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
         android:id="@+id/circle_loading_view"
         android:layout_width="match_parent"
@@ -36,15 +37,14 @@
         android:layout_centerInParent="true"
         android:animateLayoutChanges="true"
         android:autofillHints=""
-        android:background="@color/background"
+        android:background="@color/indianred"
         android:visibility="visible"
-        app:animCircleLoadingView_mainColor="@color/main_color"
+        app:animCircleLoadingView_mainColor="@color/skyblue"
         app:animCircleLoadingView_secondaryColor="@color/secondary_color"
-        app:animCircleLoadingView_textColor="@android:color/white"
+        app:animCircleLoadingView_textColor="@color/plum"
         tools:context=".MainActivity" />
 
 </LinearLayout>
-
 
 </RelativeLayout>
 
@@ -56,6 +56,5 @@
         android:fitsSystemWindows="true"
         app:headerLayout="@layout/nav_header_main"
         app:menu="@menu/activity_main_drawer" />
-
 
 </android.support.v4.widget.DrawerLayout>
