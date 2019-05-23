@@ -320,6 +320,7 @@ public class MyAdapter extends BaseAdapter {
             h=0;
             sph.edit().putInt(""+i,0).commit();
         }
+        viewHolder.hour=h;
         viewHolder.epvH.move(h);
 
         SharedPreferences spm = context.getSharedPreferences("timem", 0);
@@ -328,6 +329,7 @@ public class MyAdapter extends BaseAdapter {
             m=0;
             spm.edit().putInt(""+i,0).commit();
         }
+        viewHolder.minute=m;
         viewHolder.epvM.move(m);
 
         SharedPreferences sph1 = context.getSharedPreferences("timeh1", 0);
@@ -336,6 +338,7 @@ public class MyAdapter extends BaseAdapter {
             h1=0;
             sph1.edit().putInt(""+i,0).commit();
         }
+        viewHolder.hour1=h1;
         viewHolder.epvH1.move(h1);
 
         SharedPreferences spm1 = context.getSharedPreferences("timem1", 0);
@@ -344,6 +347,7 @@ public class MyAdapter extends BaseAdapter {
             m1=0;
             spm1.edit().putInt(""+i,0).commit();
         }
+        viewHolder.minute1=m1;
         viewHolder.epvM1.move(m1);
 
         SharedPreferences sph2= context.getSharedPreferences("timeh2", 0);
@@ -352,6 +356,7 @@ public class MyAdapter extends BaseAdapter {
             h2=0;
             sph2.edit().putInt(""+i,0).commit();
         }
+        viewHolder.hour2=h2;
         viewHolder.epvH2.move(h2);
 
         SharedPreferences spm2= context.getSharedPreferences("timem2", 0);
@@ -360,6 +365,7 @@ public class MyAdapter extends BaseAdapter {
             m2=0;
             spm2.edit().putInt(""+i,0).commit();
         }
+        viewHolder.minute2=m2;
         viewHolder.epvM2.move(m2);
 
         return view;
@@ -405,7 +411,7 @@ public class MyAdapter extends BaseAdapter {
                         else if (i == 3) message = "FOFF";
                         else if (i == 4) message = "GOFF";
                         else message = "KOFF";
-                        Toast.makeText(context, "" + message, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, message.equals("SOFF")?""+message+"睡眠模式关闭":"" + message, Toast.LENGTH_SHORT).show();
                         new Sender(message).start();
 
                         editor.putInt("" + i, data.get(i).state);
